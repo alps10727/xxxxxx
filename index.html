@@ -17,6 +17,7 @@
     @keyframes fin { to { opacity: 1; transform: translateY(0) scale(1); } }
     .bullet { opacity: 0; transform: translateX(6px); animation: bin .35s ease forwards; }
     @keyframes bin { to { opacity: 1; transform: translateX(0); } }
+    .badge { font-size: 10px; letter-spacing: .3px; }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-white">
@@ -26,216 +27,170 @@
     const { useEffect, useMemo, useRef, useState } = React;
 
     // ========== VERİ: Slaytlar (başlık + metin) ==========
-    // Not: Her slaytta BAŞLIK okunduğunda, aynı slaytın METNİ oynatılır,
-    // ses bittiğinde otomatik olarak bir SONRAKİ slayta geçilir.
     const slides = [
-      {
-        id: 'intro',
-        title: 'İSGÇ Ziyaretçi Bilgilendirme Eğitimi',
-        text: [
-          'Merhaba, bu sunum Karpowership ziyaretçileri için hazırlanmıştır. Lütfen dikkatle dinleyiniz.'
-        ]
-      },
-      {
-        id: 'icerik',
-        title: 'İçerik',
-        text: [
-          'Bu eğitimde bir bakışta Karpowership, Powership tanıtımı, acil durum prosedürleri, kişisel koruyucu donanımlar, saha turu planlaması, tehlikeler, riskler ve saha kuralları ile ramak kala raporlaması konularını ele alacağız.'
-        ]
-      },
-      {
-        id: 'overview',
-        title: 'Bir Bakışta Karpowership',
-        text: [
-          'Karpowership, dünyanın tek yüzer enerji santrali filosunun sahibi, işletmecisi ve üreticisidir.',
-          'Toplam kurulu gücü on bin megavatı aşan, elliden fazla Powershipten oluşan aktif bir filoya sahiptir.',
-          'Yirmi altı farklı ülkeden üç bin çalışanı bulunmaktadır.',
-          'Powershipler; gemi ya da yüzer platform üzerine inşa edilen, otuz ile dört yüz yetmiş megavat aralığında, kısa sürede devreye alınabilen entegre yüzer enerji santralleridir.'
-        ]
-      },
-      {
-        id: 'plant',
-        title: 'Powership Tanıtımı',
-        text: [
-          'Gemi sınıfları: Shark Class ve Mermaid Class. Lokasyon: Dominik Cumhuriyeti Azua. Kapasite: yüz yirmi dört ila yüz beş megavat aralığı. Makine sayısı: altı ve dört. Yakıt: fuel oil.'
-        ]
-      },
-      {
-        id: 'evac',
-        title: 'Acil Durum Prosedürleri – Acil Tahliye',
-        text: [
-          'Acil durum alarmı veya anonsu duyduğunuzda, sakinliğinizi koruyun. En yakın acil çıkış güzergâhını takip ederek doğrudan toplanma noktasına gidin ve rehberinizin talimatlarını izleyin.',
-          'KPS yirmi altı İrem Sultan ve KPS altmış Esra Sultan tesislerinde tek bir toplanma noktası bulunur; KPS altmış Esra Sultanın kıç tarafında yer almaktadır.',
-          'Tesisimizde üç farklı acil durum alarmı vardır: gemiyi terk, yangın ve yağ yayılımı. Gemiyi terk alarmında Acil Durum Müdahale Ekibi sizi yönlendirecektir.'
-        ]
-      },
-      {
-        id: 'reporting',
-        title: 'Tesis İçinde Acil Durum Bildirimi',
-        text: [
-          'Yangın, duman veya denize insan düşmesi gibi bir acil durum görürseniz, alarm butonuna basarak derhal acil durum alarmını devreye alın.',
-          'Rehberinizi bilgilendirin, en yakın acil çıkış rotasını takip ederek tahliye olun ve toplanma noktasına gidin. Tehlike geçti anonsu yapılana kadar tesise geri dönmeyin.'
-        ]
-      },
-      {
-        id: 'equip',
-        title: 'Acil Kaçış Ekipmanları',
-        text: [
-          'Denizle ilgili acil durumlarda, belirlenmiş konumlarda kişisel acil kaçış ekipmanları bulunmaktadır.',
-          'Can simidi, denize düşen kişinin yerini işaretlemek ve acil destek sağlamak amacıyla kullanılır. Can yeleği, tahliye sırasında giyilir ve yüzdürme desteği sağlar.',
-          'Acil kaçış solunum cihazı, duman, gaz kaçağı veya oksijen yetersizliğinde kaçış için on ila on beş dakika solunabilir hava sağlar.'
-        ]
-      },
-      {
-        id: 'firstaid',
-        title: 'İlk Yardım',
-        text: [
-          'Herhangi bir yaralanma veya tıbbi acil durumda, rehberinizi derhal bilgilendiriniz.',
-          'İlkyardım odası KPS yirmi altı İrem Sultan yaşam mahalli E katında yer almaktadır ve ilk müdahale için gerekli ekipmanla donatılmıştır. Eğitimli ilkyardım görevlileri tüm çalışma saatleri boyunca hazırdır.'
-        ]
-      },
-      {
-        id: 'tour',
-        title: 'Saha Turu Planlaması',
-        text: [
-          'Ziyaretçiler, tesis sahasında bulundukları süre boyunca kimlik kartlarını üzerinde taşımakla yükümlüdür. Lütfen saha turu boyunca rehberinizin talimatlarına harfiyen uyunuz.'
-        ]
-      },
-      {
-        id: 'ppe',
-        title: 'Kişisel Koruyucu Donanımlar',
-        text: [
-          'Ofisler, yemekhane ve dinlenme alanları gibi sosyal alanlarda kişisel koruyucu donanım kullanımı zorunlu değildir.',
-          'Operasyon alanlarında belirtilen kişisel koruyucu donanımlar, tüm ziyaret süresince zorunludur.'
-        ]
-      },
-      {
-        id: 'haz1',
-        title: 'Tehlikeler ve Saha Kuralları – Yangın ve Yürüyüş',
-        text: [
-          'Tesisimizde, uluslararası yangın güvenliği standartları doğrultusunda proaktif yangın önleme stratejileri uygulanır. Yangınla mücadele ekipmanları erişilebilir ve faaldir.',
-          'Sigara, yalnızca belirlenmiş alanlarda içilebilir. Yürüyüş platformları güvenli geçiş için tanımlıdır; korkuluk ve kaymaz yüzeylerle donatılmıştır. Her zaman belirlenmiş yürüme yollarını kullanın.'
-        ]
-      },
-      {
-        id: 'haz2',
-        title: 'Tehlikeler – Makineler ve Gürültü',
-        text: [
-          'Ekipman ve makineler uluslararası güvenlik gerekliliklerine uygun korumalarla donatılmıştır. Makinelere dokunmayın, ayar yapmayın veya yaslanmayın. Bol giysi, aksesuar ve saçlar sabitlenmelidir.',
-          'Bazı yüzeyler sıcak olabilir; sıcak yüzey uyarılarına uyun ve buhar çıkış noktaları ile ısı yalıtım bölgelerinden uzak durun. Operasyon alanlarında kulak koruyucu kullanın; uçan parçacıklar için koruyucu gözlük zorunludur.'
-        ]
-      },
-      {
-        id: 'haz3',
-        title: 'Tehlikeler – Kaldırma, Düşen Nesneler ve Kimyasallar',
-        text: [
-          'Kaldırma operasyonları iş izniyle ve fiziksel bariyerlerle yürütülür. Bariyerli alanların dışında kalın; asla askıdaki yüklerin altından geçmeyin.',
-          'Yüksekte çalışmalar ve depolanan malzemeler nedeniyle düşen nesne riski vardır; baret kullanın ve uyarılara uyun. Kimyasal depolama alanına girmeyin ve ekipmana dokunmayın; koruyucu gözlük takın.'
-        ]
-      },
-      {
-        id: 'haz4',
-        title: 'Tehlikeler – Kayma, Elektrik ve Trafik',
-        text: [
-          'Belirlenmiş yaya yollarını kullanın, adımlarınıza dikkat edin ve yürürken telefon kullanmayın. Elektrik alanlarına izinsiz girmeyin; panolar ve dolaplar kilitlidir, yüksek voltaj uyarılarına dikkat ediniz.',
-          'Saha içi trafikte motorlu ve motorsuz araçlar ayrılmış alanlarda çalışır; her zaman işaretli yaya yollarını kullanın.'
-        ]
-      },
-      {
-        id: 'rules',
-        title: 'Saha Kuralları ve Çevre',
-        text: [
-          'Sınırlı erişim alanlarına girmeyiniz. Atıkları uygun kutulara, renk kodlarına dikkat ederek atınız. Tesis yönetiminden izin olmaksızın fotoğraf veya video çekmeyiniz.'
-        ]
-      },
-      {
-        id: 'nearmiss',
-        title: 'Ramak Kala Raporlaması',
-        text: [
-          'Sahada bulunduğunuz süre boyunca bir ramak kala olay gözlemlerseniz veya yaşarsanız, derhal yetkiliye bildirin. Raporlanmamış her bir ramak kala, bir sonraki kazadır.'
-        ]
-      },
-      {
-        id: 'outro',
-        title: 'Teşekkürler',
-        text: [
-          'Karpowership güvenlik ve saha kurallarına gösterdiğiniz özen için teşekkür ederiz. Güvenli çalışmalar dileriz.'
-        ]
-      }
+      { id: 'intro', title: 'İSGÇ Ziyaretçi Bilgilendirme Eğitimi', text: [ 'Merhaba, bu sunum Karpowership ziyaretçileri için hazırlanmıştır. Lütfen dikkatle dinleyiniz.' ] },
+      { id: 'icerik', title: 'İçerik', text: [ 'Bu eğitimde bir bakışta Karpowership, Powership tanıtımı, acil durum prosedürleri, kişisel koruyucu donanımlar, saha turu planlaması, tehlikeler, riskler ve saha kuralları ile ramak kala raporlaması konularını ele alacağız.' ] },
+      { id: 'overview', title: 'Bir Bakışta Karpowership', text: [ 'Karpowership, dünyanın tek yüzer enerji santrali filosunun sahibi, işletmecisi ve üreticisidir.', 'Toplam kurulu gücü on bin megavatı aşan, elliden fazla Powershipten oluşan aktif bir filoya sahiptir.', 'Yirmi altı farklı ülkeden üç bin çalışanı bulunmaktadır.', 'Powershipler; gemi ya da yüzer platform üzerine inşa edilen, otuz ile dört yüz yetmiş megavat aralığında, kısa sürede devreye alınabilen entegre yüzer enerji santralleridir.' ] },
+      { id: 'plant', title: 'Powership Tanıtımı', text: [ 'Gemi sınıfları: Shark Class ve Mermaid Class. Lokasyon: Dominik Cumhuriyeti Azua. Kapasite: yüz yirmi dört ila yüz beş megavat aralığı. Makine sayısı: altı ve dört. Yakıt: fuel oil.' ] },
+      { id: 'evac', title: 'Acil Durum Prosedürleri – Acil Tahliye', text: [ 'Acil durum alarmı veya anonsu duyduğunuzda, sakinliğinizi koruyun. En yakın acil çıkış güzergâhını takip ederek doğrudan toplanma noktasına gidin ve rehberinizin talimatlarını izleyin.', 'KPS yirmi altı İrem Sultan ve KPS altmış Esra Sultan tesislerinde tek bir toplanma noktası bulunur; KPS altmış Esra Sultanın kıç tarafında yer almaktadır.', 'Tesisimizde üç farklı acil durum alarmı vardır: gemiyi terk, yangın ve yağ yayılımı. Gemiyi terk alarmında Acil Durum Müdahale Ekibi sizi yönlendirecektir.' ] },
+      { id: 'reporting', title: 'Tesis İçinde Acil Durum Bildirimi', text: [ 'Yangın, duman veya denize insan düşmesi gibi bir acil durum görürseniz, alarm butonuna basarak derhal acil durum alarmını devreye alın.', 'Rehberinizi bilgilendirin, en yakın acil çıkış rotasını takip ederek tahliye olun ve toplanma noktasına gidin. Tehlike geçti anonsu yapılana kadar tesise geri dönmeyin.' ] },
+      { id: 'equip', title: 'Acil Kaçış Ekipmanları', text: [ 'Denizle ilgili acil durumlarda, belirlenmiş konumlarda kişisel acil kaçış ekipmanları bulunmaktadır.', 'Can simidi, denize düşen kişinin yerini işaretlemek ve acil destek sağlamak amacıyla kullanılır. Can yeleği, tahliye sırasında giyilir ve yüzdürme desteği sağlar.', 'Acil kaçış solunum cihazı, duman, gaz kaçağı veya oksijen yetersizliğinde kaçış için on ila on beş dakika solunabilir hava sağlar.' ] },
+      { id: 'firstaid', title: 'İlk Yardım', text: [ 'Herhangi bir yaralanma veya tıbbi acil durumda, rehberinizi derhal bilgilendiriniz.', 'İlkyardım odası KPS yirmi altı İrem Sultan yaşam mahalli E katında yer almaktadır ve ilk müdahale için gerekli ekipmanla donatılmıştır. Eğitimli ilkyardım görevlileri tüm çalışma saatleri boyunca hazırdır.' ] },
+      { id: 'tour', title: 'Saha Turu Planlaması', text: [ 'Ziyaretçiler, tesis sahasında bulundukları süre boyunca kimlik kartlarını üzerinde taşımakla yükümlüdür. Lütfen saha turu boyunca rehberinizin talimatlarına harfiyen uyunuz.' ] },
+      { id: 'ppe', title: 'Kişisel Koruyucu Donanımlar', text: [ 'Ofisler, yemekhane ve dinlenme alanları gibi sosyal alanlarda kişisel koruyucu donanım kullanımı zorunlu değildir.', 'Operasyon alanlarında belirtilen kişisel koruyucu donanımlar, tüm ziyaret süresince zorunludur.' ] },
+      { id: 'haz1', title: 'Tehlikeler ve Saha Kuralları – Yangın ve Yürüyüş', text: [ 'Tesisimizde, uluslararası yangın güvenliği standartları doğrultusunda proaktif yangın önleme stratejileri uygulanır. Yangınla mücadele ekipmanları erişilebilir ve faaldir.', 'Sigara, yalnızca belirlenmiş alanlarda içilebilir. Yürüyüş platformları güvenli geçiş için tanımlıdır; korkuluk ve kaymaz yüzeylerle donatılmıştır. Her zaman belirlenmiş yürüme yollarını kullanın.' ] },
+      { id: 'haz2', title: 'Tehlikeler – Makineler ve Gürültü', text: [ 'Ekipman ve makineler uluslararası güvenlik gerekliliklerine uygun korumalarla donatılmıştır. Makinelere dokunmayın, ayar yapmayın veya yaslanmayın. Bol giysi, aksesuar ve saçlar sabitlenmelidir.', 'Bazı yüzeyler sıcak olabilir; sıcak yüzey uyarılarına uyun ve buhar çıkış noktaları ile ısı yalıtım bölgelerinden uzak durun. Operasyon alanlarında kulak koruyucu kullanın; uçan parçacıklar için koruyucu gözlük zorunludur.' ] },
+      { id: 'haz3', title: 'Tehlikeler – Kaldırma, Düşen Nesneler ve Kimyasallar', text: [ 'Kaldırma operasyonları iş izniyle ve fiziksel bariyerlerle yürütülür. Bariyerli alanların dışında kalın; asla askıdaki yüklerin altından geçmeyin.', 'Yüksekte çalışmalar ve depolanan malzemeler nedeniyle düşen nesne riski vardır; baret kullanın ve uyarılara uyun. Kimyasal depolama alanına girmeyin ve ekipmana dokunmayın; koruyucu gözlük takın.' ] },
+      { id: 'haz4', title: 'Tehlikeler – Kayma, Elektrik ve Trafik', text: [ 'Belirlenmiş yaya yollarını kullanın, adımlarınıza dikkat edin ve yürürken telefon kullanmayın. Elektrik alanlarına izinsiz girmeyin; panolar ve dolaplar kilitlidir, yüksek voltaj uyarılarına dikkat ediniz.', 'Saha içi trafikte motorlu ve motorsuz araçlar ayrılmış alanlarda çalışır; her zaman işaretli yaya yollarını kullanın.' ] },
+      { id: 'rules', title: 'Saha Kuralları ve Çevre', text: [ 'Sınırlı erişim alanlarına girmeyiniz. Atıkları uygun kutulara, renk kodlarına dikkat ederek atınız. Tesis yönetiminden izin olmaksızın fotoğraf veya video çekmeyiniz.' ] },
+      { id: 'nearmiss', title: 'Ramak Kala Raporlaması', text: [ 'Sahada bulunduğunuz süre boyunca bir ramak kala olay gözlemlerseniz veya yaşarsanız, derhal yetkiliye bildirin. Raporlanmamış her bir ramak kala, bir sonraki kazadır.' ] },
+      { id: 'outro', title: 'Teşekkürler', text: [ 'Karpowership güvenlik ve saha kurallarına gösterdiğiniz özen için teşekkür ederiz. Güvenli çalışmalar dileriz.' ] }
     ];
 
-    // ========== SES: Slayt başına MP3 ==========
-    // Daha gerçekçi seslendirme için her slaytın ses dosyasını /audio/ klasörüne yükleyin.
-    // Örn: /audio/overview.mp3 gibi. Aşağıdaki map isimleri, slides[id] ile eşleşir.
+    // ========== SES: MP3 + TTS FALLBACK ==========
+    // MP3 varsa onu çalar; yoksa tarayıcı TTS ile okur (daha doğal hız/pitch ayarlı).
     const audioMap = Object.fromEntries(slides.map(s => [s.id, `audio/${s.id}.mp3`]));
 
-    // ========== Yardımcılar ==========
-    const joinText = (arr) => arr.join(' ');
+    function useTTS() {
+      const synthRef = useRef(null);
+      const [speaking, setSpeaking] = useState(false);
+      const [paused, setPaused] = useState(false);
+      const [voices, setVoices] = useState([]);
+      const [utter, setUtter] = useState(null);
+
+      useEffect(() => {
+        if (typeof window !== 'undefined') {
+          synthRef.current = window.speechSynthesis;
+          const load = () => setVoices(window.speechSynthesis.getVoices());
+          load();
+          window.speechSynthesis.onvoiceschanged = load;
+        }
+      }, []);
+
+      const speak = (text) => {
+        const synth = synthRef.current; if (!synth) return;
+        synth.cancel(); setPaused(false);
+        const u = new SpeechSynthesisUtterance(text);
+        // Daha doğal/erkek: düşük pitch, hafif yavaş
+        u.rate = 0.95; u.pitch = 0.9; u.volume = 1;
+        const tr = voices.filter(v => (v.lang||'').toLowerCase().startsWith('tr'));
+        const chosen = tr.find(v => /male|erkek|natural|premium/i.test(v.name)) || tr[0] || voices[0];
+        if (chosen) u.voice = chosen;
+        u.onstart = () => setSpeaking(true);
+        u.onend = () => { setSpeaking(false); setPaused(false); setUtter(null); };
+        u.onerror = () => { setSpeaking(false); setPaused(false); setUtter(null); };
+        setUtter(u);
+        synth.speak(u);
+      };
+      const pause = () => { const s = synthRef.current; if (s && s.speaking && !s.paused) { s.pause(); setPaused(true);} };
+      const resume = () => { const s = synthRef.current; if (s && s.paused) { s.resume(); setPaused(false);} };
+      const stop = () => { const s = synthRef.current; if (s) { s.cancel(); setSpeaking(false); setPaused(false);} };
+
+      return { speak, pause, resume, stop, speaking, paused };
+    }
 
     function useAudioController() {
       const audioRef = useRef(null);
       const [isPlaying, setIsPlaying] = useState(false);
       const [progress, setProgress] = useState(0);
       const [duration, setDuration] = useState(0);
+      const [error, setError] = useState(null);
 
       useEffect(() => {
-        const a = audioRef.current;
-        if (!a) return;
-        const onTime = () => {
-          setProgress(a.currentTime);
-          setDuration(a.duration || 0);
-        };
-        const onPlay = () => setIsPlaying(true);
+        const a = audioRef.current; if (!a) return;
+        const onTime = () => { setProgress(a.currentTime); setDuration(a.duration || 0); };
+        const onPlay = () => { setIsPlaying(true); setError(null); };
         const onPause = () => setIsPlaying(false);
         const onEnd = () => setIsPlaying(false);
+        const onErr = () => setError('Ses dosyası yüklenemedi');
         a.addEventListener('timeupdate', onTime);
         a.addEventListener('play', onPlay);
         a.addEventListener('pause', onPause);
         a.addEventListener('ended', onEnd);
+        a.addEventListener('error', onErr);
         return () => {
           a.removeEventListener('timeupdate', onTime);
           a.removeEventListener('play', onPlay);
           a.removeEventListener('pause', onPause);
           a.removeEventListener('ended', onEnd);
+          a.removeEventListener('error', onErr);
         };
       }, []);
 
-      const play = () => audioRef.current?.play();
+      const play = async () => {
+        try { await audioRef.current?.play(); } catch(e) { /* engellendiyse user gesture gerektirir */ }
+      };
       const pause = () => audioRef.current?.pause();
       const stop = () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } };
       const setSrc = (src) => { if (audioRef.current) { audioRef.current.src = src; audioRef.current.load(); }};
       const seek = (t) => { if (audioRef.current) { audioRef.current.currentTime = t; }};
 
-      return { audioRef, isPlaying, progress, duration, play, pause, stop, setSrc, seek };
+      return { audioRef, isPlaying, progress, duration, error, play, pause, stop, setSrc, seek };
     }
 
     function App() {
       const [idx, setIdx] = useState(0);
       const [autoplay, setAutoplay] = useState(true); // ses bitince otomatik geçiş
+      const [useTtsFallback, setUseTtsFallback] = useState(false);
+      const [toast, setToast] = useState('');
       const cur = slides[idx];
 
       // Ses kontrol
-      const { audioRef, isPlaying, progress, duration, play, pause, stop, setSrc, seek } = useAudioController();
+      const { audioRef, isPlaying, progress, duration, error, play, pause, stop, setSrc, seek } = useAudioController();
+      const tts = useTTS();
 
-      // Slayt değiştiğinde ilgili MP3 yükle
+      // Slayt değiştiğinde ilgili MP3 yükle, hata olursa TTS'e düş
       useEffect(() => {
-        stop();
+        // Her slaytta önce MP3 dene
+        setUseTtsFallback(false);
+        stop(); tts.stop();
         const src = audioMap[cur.id];
         if (src) setSrc(src);
-        // Ses hazır olduğunda otomatik başlat
-        const a = audioRef.current;
-        if (!a) return;
-        const onCanPlay = () => { if (autoplay) play(); };
+        const a = audioRef.current; if (!a) return;
+        const onCanPlay = async () => { if (autoplay) { try { await play(); } catch(_) {} } };
         const onEnded = () => { if (autoplay) next(); };
+        const onErr = () => {
+          // MP3 yoksa TTS'e geç
+          setUseTtsFallback(true);
+          setToast('Profesyonel ses bulunamadı, geçici olarak TTS kullanılıyor.');
+          tts.speak([cur.title, ...cur.text].join('. '));
+        };
         a.addEventListener('canplay', onCanPlay);
         a.addEventListener('ended', onEnded);
-        return () => { a.removeEventListener('canplay', onCanPlay); a.removeEventListener('ended', onEnded); };
+        a.addEventListener('error', onErr);
+        return () => {
+          a.removeEventListener('canplay', onCanPlay);
+          a.removeEventListener('ended', onEnded);
+          a.removeEventListener('error', onErr);
+        };
       }, [idx, autoplay]);
+
+      // TTS bittiğinde otomatik sonraki slayt
+      useEffect(() => {
+        if (!useTtsFallback) return;
+        const interval = setInterval(() => {
+          const s = window.speechSynthesis;
+          if (s && !s.speaking) { clearInterval(interval); if (autoplay) next(); }
+        }, 300);
+        return () => clearInterval(interval);
+      }, [useTtsFallback, autoplay]);
 
       const next = () => setIdx(i => Math.min(i + 1, slides.length - 1));
       const prev = () => setIdx(i => Math.max(i - 1, 0));
-
       const pct = duration ? Math.min(100, (progress / duration) * 100) : 0;
+
+      const handlePlay = async () => {
+        if (useTtsFallback) { tts.speak([cur.title, ...cur.text].join('. ')); return; }
+        try { await play(); } catch(e) {
+          // Kullanıcı etkileşimi gerektirebilir; yine başarısızsa TTS'e düş
+          setToast('Tarayıcı sesini engelledi. Geçici olarak TTS ile okunuyor.');
+          setUseTtsFallback(true);
+          tts.speak([cur.title, ...cur.text].join('. '));
+        }
+      };
+      const handlePause = () => { useTtsFallback ? tts.pause() : pause(); };
+      const handleResume = () => { useTtsFallback ? tts.resume() : play(); };
+      const handleStop = () => { useTtsFallback ? tts.stop() : stop(); };
 
       return (
         <div className="min-h-screen">
@@ -247,7 +202,8 @@
                 <h1 className="text-lg font-semibold">KPS İSGÇ Ziyaretçi Bilgilendirme – Pro Sunum</h1>
                 <p className="text-xs text-white/60">Slayt başına gerçekçi seslendirme • Otomatik ilerleme • Klavye kısayolları</p>
               </div>
-              <label className="text-xs flex items-center gap-2 select-none">
+              <span className="badge px-2 py-1 rounded-full bg-white/10 border border-white/10">Ses modu: {useTtsFallback ? 'TTS (geçici)' : 'Stüdyo MP3'}</span>
+              <label className="text-xs flex items-center gap-2 select-none ml-3">
                 <input type="checkbox" className="accent-white" checked={autoplay} onChange={e => setAutoplay(e.target.checked)} />
                 Ses bitince otomatik geç
               </label>
@@ -285,12 +241,19 @@
             <div className="mt-6 bg-white/5 rounded-2xl p-4 border border-white/10">
               <audio ref={audioRef} preload="metadata" />
               <div className="flex items-center gap-3">
-                {!isPlaying ? (
-                  <button onClick={play} className="px-4 py-2 rounded-xl bg-white text-slate-900 font-semibold">▶ Oynat</button>
+                {!(isPlaying || tts.speaking) ? (
+                  <button onClick={handlePlay} className="px-4 py-2 rounded-xl bg-white text-slate-900 font-semibold">▶ Oynat</button>
                 ) : (
-                  <button onClick={pause} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10">⏸ Duraklat</button>
+                  <>
+                    {!tts.paused && (isPlaying || tts.speaking) && (
+                      <button onClick={handlePause} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10">⏸ Duraklat</button>
+                    )}
+                    {tts.paused && (
+                      <button onClick={handleResume} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10">▶ Sürdür</button>
+                    )}
+                  </>
                 )}
-                <button onClick={() => { stop(); }} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10">■ Durdur</button>
+                <button onClick={handleStop} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10">■ Durdur</button>
                 <div className="ml-auto text-sm text-white/70">{Math.floor(progress)}s / {Math.floor(duration)}s</div>
               </div>
               <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer" onClick={e => {
@@ -307,26 +270,23 @@
               <button onClick={() => setIdx(i => Math.max(i-1, 0))} disabled={idx===0} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 disabled:opacity-40">← Önceki</button>
               <button onClick={() => setIdx(i => Math.min(i+1, slides.length-1))} disabled={idx===slides.length-1} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 disabled:opacity-40 ml-auto">Sonraki →</button>
             </div>
-
-            <p className="mt-4 text-xs text-white/60">Not: Daha gerçekçi ses için her slaytın MP3’ünü <code>/audio/&lt;id&gt;.mp3</code> olacak şekilde yükleyin. Örn: <code>overview.mp3</code>. Site, slayt değişince ilgili MP3’ü otomatik oynatır ve bittiğinde otomatik geçer.</p>
           </main>
 
           <footer className="py-6 text-center text-xs text-white/50">© {new Date().getFullYear()} Karpowership – Ziyaretçi Bilgilendirme Sunumu</footer>
+
+          {/* Toast */}
+          {toast && (
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-4 py-2 rounded-xl shadow-lg text-sm" onAnimationEnd={() => setTimeout(()=>setToast(''), 3000)}>
+              {toast}
+            </div>
+          )}
         </div>
       );
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App/>);
-
-    // Klavye kısayolları: Sol/sağ ok, space play/pause
-    window.addEventListener('keydown', (e) => {
-      const btns = document.querySelectorAll('button');
-      if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
-      if (e.key === 'ArrowRight') {
-        btns.forEach(b=>{}); // React içinde handle edildi.
-      }
-    });
   </script>
 </body>
 </html>
+
