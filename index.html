@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KPS İSGÇ Ziyaretçi Bilgilendirme – Pro Sunum</title>
+  <meta name="description" content="Karpowership İSGÇ Ziyaretçi Bilgilendirme – profesyonel slayt deneyimi, slayt başına gerçekçi seslendirme ve otomatik geçiş." />
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React 18 + ReactDOM + Babel (CDN) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    .fade-in { opacity: 0; transform: translateY(8px) scale(.98); animation: fin .45s ease forwards; }
+    @keyframes fin { to { opacity: 1; transform: translateY(0) scale(1); } }
+    .bullet { opacity: 0; transform: translateX(6px); animation: bin .35s ease forwards; }
+    @keyframes bin { to { opacity: 1; transform: translateX(0); } }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useEffect, useMemo, useRef, useState } = React;
+
+    // ========== VERİ: Slaytlar (başlık + metin) ==========
+    // Not: Her slaytta BAŞLIK okunduğunda, aynı slaytın METNİ oynatılır,
+    // ses bittiğinde otomatik olarak bir SONRAKİ slayta geçilir.
+    const slides = [
+      {
+        id: 'intro',
+        title: 'İSGÇ Ziyaretçi Bilgilendirme Eğitimi',
+        text: [
+          'Merhaba, bu sunum Karpowership ziyaretçileri için hazırlanmıştır. Lütfen dikkatle dinleyiniz.'
+        ]
+      },
+      {
+        id: 'icerik',
+        title: 'İçerik',
+        text: [
+          'Bu eğitimde bir bakışta Karpowership, Powership tanıtımı, acil durum prosedürleri, kişisel koruyucu donanımlar, saha turu planlaması, tehlikeler, riskler ve saha kuralları ile ramak kala raporlaması konularını ele alacağız.'
+        ]
+      },
+      {
+        id: 'overview',
+        title: 'Bir Bakışta Karpowership',
+        text: [
+          'Karpowership, dünyanın tek yüzer enerji santrali filosunun sahibi, işletmecisi ve üreticisidir.',
+          'Toplam kurulu gücü on bin megavatı aşan, elliden fazla Powershipten oluşan aktif bir filoya sahiptir.',
+          'Yirmi altı farklı ülkeden üç bin çalışanı bulunmaktadır.',
+          'Powershipler; gemi ya da yüzer platform üzerine inşa edilen, otuz ile dört yüz yetmiş megavat aralığında, kısa sürede devreye alınabilen entegre yüzer enerji santralleridir.'
+        ]
+      },
+      {
+        id: 'plant',
+        title: 'Powership Tanıtımı',
+        text: [
+          'Gemi sınıfları: Shark Class ve Mermaid Class. Lokasyon: Dominik Cumhuriyeti Azua. Kapasite: yüz yirmi dört ila yüz beş megavat aralığı. Makine sayısı: altı ve dört. Yakıt: fuel oil.'
+        ]
+      },
+      {
+        id: 'evac',
+        title: 'Acil Durum Prosedürleri – Acil Tahliye',
+        text: [
+          'Acil durum alarmı veya anonsu duyduğunuzda, sakinliğinizi koruyun. En yakın acil çıkış güzergâhını takip ederek doğrudan toplanma noktasına gidin ve rehberinizin talimatlarını izleyin.',
+          'KPS yirmi altı İrem Sultan ve KPS altmış Esra Sultan tesislerinde tek bir toplanma noktası bulunur; KPS altmış Esra Sultanın kıç tarafında yer almaktadır.',
+          'Tesisimizde üç farklı acil durum alarmı vardır: gemiyi terk, yangın ve yağ yayılımı. Gemiyi terk alarmında Acil Durum Müdahale Ekibi sizi yönlendirecektir.'
+        ]
+      },
+      {
+        id: 'reporting',
+        title: 'Tesis İçinde Acil Durum Bildirimi',
+        text: [
+          'Yangın, duman veya denize insan düşmesi gibi bir acil durum görürseniz, alarm butonuna basarak derhal acil durum alarmını devreye alın.',
+          'Rehberinizi bilgilendirin, en yakın acil çıkış rotasını takip ederek tahliye olun ve toplanma noktasına gidin. Tehlike geçti anonsu yapılana kadar tesise geri dönmeyin.'
+        ]
+      },
+      {
+        id: 'equip',
+        title: 'Acil Kaçış Ekipmanları',
+        text: [
+          'Denizle ilgili acil durumlarda, belirlenmiş konumlarda kişisel acil kaçış ekipmanları bulunmaktadır.',
+          'Can simidi, denize düşen kişinin yerini işaretlemek ve acil destek sağlamak amacıyla kullanılır. Can yeleği, tahliye sırasında giyilir ve yüzdürme desteği sağlar.',
+          'Acil kaçış solunum cihazı, duman, gaz kaçağı veya oksijen yetersizliğinde kaçış için on ila on beş dakika solunabilir hava sağlar.'
+        ]
+      },
+      {
+        id: 'firstaid',
+        title: 'İlk Yardım',
+        text: [
+          'Herhangi bir yaralanma veya tıbbi acil durumda, rehberinizi derhal bilgilendiriniz.',
+          'İlkyardım odası KPS yirmi altı İrem Sultan yaşam mahalli E katında yer almaktadır ve ilk müdahale için gerekli ekipmanla donatılmıştır. Eğitimli ilkyardım görevlileri tüm çalışma saatleri boyunca hazırdır.'
+        ]
+      },
+      {
+        id: 'tour',
+        title: 'Saha Turu Planlaması',
+        text: [
+          'Ziyaretçiler, tesis sahasında bulundukları süre boyunca kimlik kartlarını üzerinde taşımakla yükümlüdür. Lütfen saha turu boyunca rehberinizin talimatlarına harfiyen uyunuz.'
+        ]
+      },
+      {
+        id: 'ppe',
+        title: 'Kişisel Koruyucu Donanımlar',
+        text: [
+          'Ofisler, yemekhane ve dinlenme alanları gibi sosyal alanlarda kişisel koruyucu donanım kullanımı zorunlu değildir.',
+          'Operasyon alanlarında belirtilen kişisel koruyucu donanımlar, tüm ziyaret süresince zorunludur.'
+        ]
+      },
+      {
+        id: 'haz1',
+        title: 'Tehlikeler ve Saha Kuralları – Yangın ve Yürüyüş',
+        text: [
+          'Tesisimizde, uluslararası yangın güvenliği standartları doğrultusunda proaktif yangın önleme stratejileri uygulanır. Yangınla mücadele ekipmanları erişilebilir ve faaldir.',
+          'Sigara, yalnızca belirlenmiş alanlarda içilebilir. Yürüyüş platformları güvenli geçiş için tanımlıdır; korkuluk ve kaymaz yüzeylerle donatılmıştır. Her zaman belirlenmiş yürüme yollarını kullanın.'
+        ]
+      },
+      {
+        id: 'haz2',
+        title: 'Tehlikeler – Makineler ve Gürültü',
+        text: [
+          'Ekipman ve makineler uluslararası güvenlik gerekliliklerine uygun korumalarla donatılmıştır. Makinelere dokunmayın, ayar yapmayın veya yaslanmayın. Bol giysi, aksesuar ve saçlar sabitlenmelidir.',
+          'Bazı yüzeyler sıcak olabilir; sıcak yüzey uyarılarına uyun ve buhar çıkış noktaları ile ısı yalıtım bölgelerinden uzak durun. Operasyon alanlarında kulak koruyucu kullanın; uçan parçacıklar için koruyucu gözlük zorunludur.'
+        ]
+      },
+      {
+        id: 'haz3',
+        title: 'Tehlikeler – Kaldırma, Düşen Nesneler ve Kimyasallar',
+        text: [
+          'Kaldırma operasyonları iş izniyle ve fiziksel bariyerlerle yürütülür. Bariyerli alanların dışında kalın; asla askıdaki yüklerin altından geçmeyin.',
+          'Yüksekte çalışmalar ve depolanan malzemeler nedeniyle düşen nesne riski vardır; baret kullanın ve uyarılara uyun. Kimyasal depolama alanına girmeyin ve ekipmana dokunmayın; koruyucu gözlük takın.'
+        ]
+      },
+      {
+        id: 'haz4',
+        title: 'Tehlikeler – Kayma, Elektrik ve Trafik',
+        text: [
+          'Belirlenmiş yaya yollarını kullanın, adımlarınıza dikkat edin ve yürürken telefon kullanmayın. Elektrik alanlarına izinsiz girmeyin; panolar ve dolaplar kilitlidir, yüksek voltaj uyarılarına dikkat ediniz.',
+          'Saha içi trafikte motorlu ve motorsuz araçlar ayrılmış alanlarda çalışır; her zaman işaretli yaya yollarını kullanın.'
+        ]
+      },
+      {
+        id: 'rules',
+        title: 'Saha Kuralları ve Çevre',
+        text: [
+          'Sınırlı erişim alanlarına girmeyiniz. Atıkları uygun kutulara, renk kodlarına dikkat ederek atınız. Tesis yönetiminden izin olmaksızın fotoğraf veya video çekmeyiniz.'
+        ]
+      },
+      {
+        id: 'nearmiss',
+        title: 'Ramak Kala Raporlaması',
+        text: [
+          'Sahada bulunduğunuz süre boyunca bir ramak kala olay gözlemlerseniz veya yaşarsanız, derhal yetkiliye bildirin. Raporlanmamış her bir ramak kala, bir sonraki kazadır.'
+        ]
+      },
+      {
+        id: 'outro',
+        title: 'Teşekkürler',
+        text: [
+          'Karpowership güvenlik ve saha kurallarına gösterdiğiniz özen için teşekkür ederiz. Güvenli çalışmalar dileriz.'
+        ]
+      }
+    ];
+
+    // ========== SES: Slayt başına MP3 ==========
+    // Daha gerçekçi seslendirme için her slaytın ses dosyasını /audio/ klasörüne yükleyin.
+    // Örn: /audio/overview.mp3 gibi. Aşağıdaki map isimleri, slides[id] ile eşleşir.
+    const audioMap = Object.fromEntries(slides.map(s => [s.id, `audio/${s.id}.mp3`]));
+
+    // ========== Yardımcılar ==========
+    const joinText = (arr) => arr.join(' ');
+
+    function useAudioController() {
+      const audioRef = useRef(null);
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [progress, setProgress] = useState(0);
+      const [duration, setDuration] = useState(0);
+
+      useEffect(() => {
+        const a = audioRef.current;
+        if (!a) return;
+        const onTime = () => {
+          setProgress(a.currentTime);
+          setDuration(a.duration || 0);
+        };
+        const onPlay = () => setIsPlaying(true);
+        const onPause = () => setIsPlaying(false);
+        const onEnd = () => setIsPlaying(false);
+        a.addEventListener('timeupdate', onTime);
+        a.addEventListener('play', onPlay);
+        a.addEventListener('pause', onPause);
+        a.addEventListener('ended', onEnd);
+        return () => {
+          a.removeEventListener('timeupdate', onTime);
+          a.removeEventListener('play', onPlay);
+          a.removeEventListener('pause', onPause);
+          a.removeEventListener('ended', onEnd);
+        };
+      }, []);
+
+      const play = () => audioRef.current?.play();
+      const pause = () => audioRef.current?.pause();
+      const stop = () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } };
+      const setSrc = (src) => { if (audioRef.current) { audioRef.current.src = src; audioRef.current.load(); }};
+      const seek = (t) => { if (audioRef.current) { audioRef.current.currentTime = t; }};
+
+      return { audioRef, isPlaying, progress, duration, play, pause, stop, setSrc, seek };
+    }
+
+    function App() {
+      const [idx, setIdx] = useState(0);
+      const [autoplay, setAutoplay] = useState(true); // ses bitince otomatik geçiş
+      const cur = slides[idx];
+
+      // Ses kontrol
+      const { audioRef, isPlaying, progress, duration, play, pause, stop, setSrc, seek } = useAudioController();
+
+      // Slayt değiştiğinde ilgili MP3 yükle
+      useEffect(() => {
+        stop();
+        const src = audioMap[cur.id];
+        if (src) setSrc(src);
+        // Ses hazır olduğunda otomatik başlat
+        const a = audioRef.current;
+        if (!a) return;
+        const onCanPlay = () => { if (autoplay) play(); };
+        const onEnded = () => { if (autoplay) next(); };
+        a.addEventListener('canplay', onCanPlay);
+        a.addEventListener('ended', onEnded);
+        return () => { a.removeEventListener('canplay', onCanPlay); a.removeEventListener('ended', onEnded); };
+      }, [idx, autoplay]);
+
+      const next = () => setIdx(i => Math.min(i + 1, slides.length - 1));
+      const prev = () => setIdx(i => Math.max(i - 1, 0));
+
+      const pct = duration ? Math.min(100, (progress / duration) * 100) : 0;
+
+      return (
+        <div className="min-h-screen">
+          {/* Header */}
+          <header className="sticky top-0 z-30 bg-slate-900/70 backdrop-blur border-b border-white/10">
+            <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-2xl bg-white/10 grid place-items-center">🎙️</div>
+              <div className="flex-1">
+                <h1 className="text-lg font-semibold">KPS İSGÇ Ziyaretçi Bilgilendirme – Pro Sunum</h1>
+                <p className="text-xs text-white/60">Slayt başına gerçekçi seslendirme • Otomatik ilerleme • Klavye kısayolları</p>
+              </div>
+              <label className="text-xs flex items-center gap-2 select-none">
+                <input type="checkbox" className="accent-white" checked={autoplay} onChange={e => setAutoplay(e.target.checked)} />
+                Ses bitince otomatik geç
+              </label>
+            </div>
+          </header>
+
+          {/* Main */}
+          <main className="max-w-6xl mx-auto px-4 py-8">
+            {/* Progress */}
+            <div className="mb-4">
+              <div className="flex justify-between text-xs text-white/70 mb-1">
+                <span>Slayt {idx + 1} / {slides.length}</span>
+                <span>{cur.id}</span>
+              </div>
+              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-white/90" style={{ width: `${((idx + 1) / slides.length) * 100}%` }} />
+              </div>
+            </div>
+
+            {/* Slide */}
+            <section className="relative bg-white/5 p-8 md:p-10 rounded-3xl shadow-xl overflow-hidden min-h-[420px]">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 fade-in">{cur.title}</h2>
+              <div className="space-y-3 md:space-y-4">
+                {cur.text.map((t, i) => (
+                  <p key={i} className="text-base md:text-lg leading-relaxed text-white/90 bullet" style={{ animationDelay: `${i*90}ms` }}>{t}</p>
+                ))}
+              </div>
+
+              {/* Arka plan süsleri */}
+              <div className="absolute -right-20 -bottom-24 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl"/>
+              <div className="absolute -left-24 -top-24 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl"/>
+            </section>
+
+            {/* Audio Controls */}
+            <div className="mt-6 bg-white/5 rounded-2xl p-4 border border-white/10">
+              <audio ref={audioRef} preload="metadata" />
+              <div className="flex items-center gap-3">
+                {!isPlaying ? (
+                  <button onClick={play} className="px-4 py-2 rounded-xl bg-white text-slate-900 font-semibold">▶ Oynat</button>
+                ) : (
+                  <button onClick={pause} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10">⏸ Duraklat</button>
+                )}
+                <button onClick={() => { stop(); }} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10">■ Durdur</button>
+                <div className="ml-auto text-sm text-white/70">{Math.floor(progress)}s / {Math.floor(duration)}s</div>
+              </div>
+              <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer" onClick={e => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const ratio = (e.clientX - rect.left) / rect.width;
+                seek(ratio * (duration || 0));
+              }}>
+                <div className="h-full bg-white/90" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+
+            {/* Nav */}
+            <div className="mt-6 flex items-center gap-3">
+              <button onClick={() => setIdx(i => Math.max(i-1, 0))} disabled={idx===0} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 disabled:opacity-40">← Önceki</button>
+              <button onClick={() => setIdx(i => Math.min(i+1, slides.length-1))} disabled={idx===slides.length-1} className="px-4 py-2 rounded-xl bg-white/10 border border-white/10 disabled:opacity-40 ml-auto">Sonraki →</button>
+            </div>
+
+            <p className="mt-4 text-xs text-white/60">Not: Daha gerçekçi ses için her slaytın MP3’ünü <code>/audio/&lt;id&gt;.mp3</code> olacak şekilde yükleyin. Örn: <code>overview.mp3</code>. Site, slayt değişince ilgili MP3’ü otomatik oynatır ve bittiğinde otomatik geçer.</p>
+          </main>
+
+          <footer className="py-6 text-center text-xs text-white/50">© {new Date().getFullYear()} Karpowership – Ziyaretçi Bilgilendirme Sunumu</footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App/>);
+
+    // Klavye kısayolları: Sol/sağ ok, space play/pause
+    window.addEventListener('keydown', (e) => {
+      const btns = document.querySelectorAll('button');
+      if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
+      if (e.key === 'ArrowRight') {
+        btns.forEach(b=>{}); // React içinde handle edildi.
+      }
+    });
+  </script>
+</body>
+</html>
